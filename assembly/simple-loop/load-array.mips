@@ -1,0 +1,27 @@
+## Load empty array with alphabet
+
+main:
+  la $t0, array1    # load pointer into t0
+  li $t1, 'a'       # starting character
+  li $t2, 'z'       # stopping characters
+
+# Print each character independently
+loop:
+  sb $t1, 0($t0)    # store current letter in array
+
+  beq $t1, $t2, end  # stop if letter == 'z'
+  addi $t1, $t1, 1   # increment character val
+  addi $t0, $t0, 1   # increment array address
+
+  j loop
+
+end:
+
+  # exit
+  li $v0, 10
+  syscall
+
+
+.data
+  array1: .byte 27   #characters in alphabet
+  lb: .asciiz "\n"

@@ -1,0 +1,45 @@
+## Print sum of N digits 0 + 1 + 2 + 3
+
+main:
+
+# Print intro message to console
+li $v0, 4      #load print string command
+la $a0, msg1   # argument to print string
+syscall
+
+# Get N from user
+li $v0, 5       # read_int syscall
+syscall
+move $t0, $v0   # user's response stored in $v0, so we move it
+
+# Initialize counter and sum
+li $t1, 1   # counter
+li $t2, 0   # sum
+
+myloop:
+  addu $t2, $t2, $t1        # add t1 to t2 and save to t2
+  beq $t1, $t0, endmyloop   # stop looping if t1 == N
+  addi $t1, $t1, 1               # increment counter by 1
+  j myloop
+endmyloop:
+
+# Print Sum String
+li $v0, 4      # print string command = 4
+la $a0, msg2   # argument to print string
+syscall
+
+# Print Sum
+li $v0, 1      # print integer command = 1
+move $a0, $t2    # load sum into a0
+syscall
+
+## syscall to exit
+
+li $v0, 10
+syscall
+
+
+.data
+  msg1: .asciiz "N? "
+  msg2: .asciiz "Sum = "
+  lb: .asciiz "\n"

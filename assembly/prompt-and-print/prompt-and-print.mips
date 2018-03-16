@@ -1,0 +1,28 @@
+## Print pre-initialized array of characters
+
+main:
+  la $t0, array1    # load pointer into t0
+  
+# Print each character independently
+loop:
+  
+  beq $t0, 3, end 
+  lb $t1, 0($t0)    # load value into t1
+  
+  li $v0, 11      # print char cmd
+  move $a0, $t1   # load current char into
+  syscall
+
+  addi $t0, $t0, 1   # increment address
+  j loop
+  
+end:
+
+  # exit
+  li $v0, 10
+  syscall
+
+
+.data
+  array1: .byte 'a','b','c'
+  lb: .asciiz "\n"

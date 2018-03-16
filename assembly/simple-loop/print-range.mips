@@ -1,0 +1,22 @@
+## Load empty array with alphabet
+
+main:
+  li $t1, '0'       # starting character
+  li $t0, 0         # counter
+
+# Print each character independently
+loop:
+    li $v0, 11      # print char cmd
+    move $a0, $t1   # load current char into
+    syscall
+
+  beq $t0, 9, end  # stop if letter == 'z'
+  addi $t1, $t1, 1   # increment character val
+  addi $t0, $t0, 1   # increment character val
+  j loop
+
+end:
+
+  # exit
+  li $v0, 10
+  syscall
