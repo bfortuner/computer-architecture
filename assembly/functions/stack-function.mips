@@ -2,6 +2,10 @@
 
 main:
 
+	# Initialize registers
+	lw $s0, x
+	lw $s1, y
+
 	# print input msg
 	li $v0, 4
 	la $a0, msg1
@@ -10,12 +14,12 @@ main:
 	# read integer from the user
 	li $v0, 5
 	syscall
-	move $t0, $v0
+	move $s0, $v0
 
 	# call the `math` function
-	move $a0, $t0
+	move $a0, $s0
 	jal math                # save current PC in $ra, jump to `math`
-	move $t1, $v0
+	move $s1, $v0
 
 	# print output msg
 	li $v0, 4
@@ -24,7 +28,7 @@ main:
 
 	# print function output
 	li $v0, 1
-	move $a0, $t1
+	move $a0, $s1
 	syscall
 
 	# Exit program
@@ -37,8 +41,14 @@ main:
 	# Arguments are stored in $a0
 	# Return value is stored in $v0
 	# Return address is stored in $ra (put there by jal instruction)
+	# This function overwrites $s0 and $s1 so we save them on stack (PUSH)
 
 math:	  					  # multiply by 2 and add 5
+
+	addi $sp, $sp, -4  # moving the stack back/up 4 bytes?
+	sw $s0, 0($sp)     # Saving the value of s0 in the new sp index
+	addi $sp, $sp, -4  # moving the stack back/up 4 bytes?
+	sw $s1, 0($sp)   # Saving the value of s0 in the new sp index
 
 	li $s0, 2           # store the multiple in a 'save' register
 	mul $s1, $s0, $a0		# s1 = 2 * a0  (multiply input and save to s1)
@@ -47,6 +57,12 @@ math:	  					  # multiply by 2 and add 5
 	# Save the return value in $v0
 	move $v0, $s1
 
+	# Restore the saved register values from stack in opposite order (POP)
+	lw $s1, 0($sp)				# restore
+	addi $sp, $sp, 4
+	lw $s0, 0($sp)
+	addi $sp, $sp, 4
+
 	# Return from function
 	jr $ra			# Jump to addr stored in $ra
 
@@ -54,5 +70,7 @@ math:	  					  # multiply by 2 and add 5
 
 
 .data
-	msg1: .asciiz "Input N: "
+	x:    .word   0
+	y:    .word   0
+ 	msg1: .asciiz "Input N: "
 	msg2: .asciiz "Output: "

@@ -1,5 +1,97 @@
-.global nesting_functions
+main:
 
-nesting_functions:
-	li $v0, 56 # Simplistic function that passes the first test, not the rest
+# print input msg
+li $v0, 4
+la $a0, msg1
+syscall
+
+# read integer from the user
+li $v0, 5
+syscall
+move $s0, $v0
+
+# call the `math` function
+move $a0, $s0
+jal a                # save current PC in $ra, jump to `math`
+move $s1, $v0
+
+# print output msg
+li $v0, 4
+la $a0, msg2
+syscall
+
+# print function output
+li $v0, 1
+move $a0, $s1
+syscall
+
+# Exit program
+li $v0, 10
+syscall
+
+
+# ------------------------------------------------------------------
+
+a:
+
+	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+
+	move $s0, $a0
+
+	# call b
+	jal b                # n is still in $a0
+	move $s1, $v0
+
+	# call c
+	move $a0, $s1
+	jal c                # n is still in $a0
+	move $t0, $v0
+
+	add $t0, $t0, $s0
+	add $t0, $t0, $s1
+	move $v0, $t0
+
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
+
 	jr $ra
+
+b:
+
+	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+	addi $sp, $sp, -4
+	sw $s0, 0($sp)
+
+	move $s0, $a0					 # save n
+
+	# call c
+	jal c                # n is still in $a0
+	move $s1, $v0
+
+	mul $s1, $s1, $s0		 # s1 = c(n) * n
+	move $v0, $s1
+
+	# Return save registers and return address to original pos
+	lw $s0, 0($sp)
+	addi $sp, $sp, 4
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
+
+	jr $ra                    # Return control to a
+
+# Add 5 to N
+# we don't need to save anything since no further function calls
+c:
+
+	li $t0, 5
+	add $t0, $t0, $a0
+	move $v0, $t0
+	jr $ra
+
+# ------------------------------------------------------------------
+
+.data
+	msg1: .asciiz "Input N: "
+	msg2: .asciiz "Output: "
